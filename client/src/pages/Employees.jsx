@@ -18,7 +18,7 @@ const Employees = () => {
     setTimeout(() => {
       setLoading(false)
     }, 1000)
-  }, [])
+  }, [selectedDept])
   useEffect(() => {
     fetchEmployees()
   }, [fetchEmployees])
