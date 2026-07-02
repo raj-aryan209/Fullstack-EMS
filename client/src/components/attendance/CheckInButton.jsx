@@ -26,7 +26,7 @@ const CheckInButton = ({todayRecord, onAction}) => {
   return (
     <div className='fixed bottom-4 right-4 flex flex-col z-1'>
       <button onClick={handleAttendance} disabled={loading
-      } className={`w-full max-w-xs flex justify-between items-center gap-8 p-4 rounded-xl bg-gradient-to-br text-white ${ischeckedIn ? "from-slate-700 to-slate-900" : "from-indigo-600 to-indigo-700"}`}>
+      } className={`w-full max-w-xs flex justify-between items-center gap-8 p-4 rounded-xl bg-linear-to-br text-white ${ischeckedIn ? "from-slate-700 to-slate-900" : "from-indigo-600 to-indigo-700"}`}>
         {loading ? <Loader2Icon className="size-7 animate-spin"/> : ischeckedIn ? <LogOutIcon className='size-7'/> : <LogInIcon className='size-7'/>}
         <div className='relative flex flex-col items-center text-center'>
 

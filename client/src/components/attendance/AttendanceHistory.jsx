@@ -4,7 +4,7 @@ import {format} from 'date-fns'
 
 const AttendanceHistory = ({history}) => {
   return (
-    <div className='card       overflow-hidden'>
+    <div className='card overflow-hidden'>
       <div className='px-6 py-4 border-b border-slate-100'>
           <h3 className='font-semibold text-slate-900'>
             Recent Activity
