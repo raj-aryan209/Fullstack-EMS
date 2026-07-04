@@ -1,5 +1,5 @@
-import { User } from "../models/Employee.js";
-import Employee from "../models/Employee";
+import User  from "../models/User.js";
+import Employee from "../models/Employee.js";
 import bcrypt from "bcrypt";
 
 
