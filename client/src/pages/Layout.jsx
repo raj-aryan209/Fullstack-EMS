@@ -1,7 +1,12 @@
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet, useActionData } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
-
+import { useAuth } from "../context/AuthContext";
 const Layout = () => {
+    const {user, loading} = useAuth()
+
+    if(loading) return <Loading/>
+    if(!user) return <Navigate to="/login"/>
+
   return (
       <>
         {/* tailwind classes */}
