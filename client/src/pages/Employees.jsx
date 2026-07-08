@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Plus, Search, Edit2, Trash2, X } from 'lucide-react'
 import { DEPARTMENTS, dummyEmployeeData } from '../assets/assets'
 import EmployeeForm from '../components/EmployeeForm'
+import api from '../api/axios'
+import EmployeeCard from '../components/EmployeeCard'
 
 const Employees = () => {
   const [employees, setEmployees] = useState([])
@@ -13,11 +15,18 @@ const Employees = () => {
   const [editEmployee, setEditEmployee] = useState(null)
 
   const fetchEmployees = useCallback(async () => {
-    setLoading(true)
-    setEmployees(dummyEmployeeData)
-    setTimeout(() => {
-      setLoading(false)
-    }, 1000)
+    try {
+      const url = selectedDept
+        ? `/employees?department=${selectedDept}`
+        : "/employees";
+
+      const res = await api.get(url);
+      setEmployees(res.data);
+    } catch (error) {
+      console.error("Failed to fetch employees");
+    } finally {
+      setLoading(false);
+    }
   }, [selectedDept])
   useEffect(() => {
     fetchEmployees()
@@ -69,8 +78,8 @@ const Employees = () => {
           <h1 className='page-title'>Employees</h1>
           <p className='page-subtitle'>Manage your team members</p>
         </div>
-        <button onClick={()=> setShowCreateModal(true)}
-        className='btn-primary flex items-center gap-2 w-full sm:w-auto justify-center'>
+        <button onClick={() => setShowCreateModal(true)}
+          className='btn-primary flex items-center gap-2 w-full sm:w-auto justify-center'>
           <Plus size={16} /> Add Employee
         </button>
       </div>
@@ -101,56 +110,28 @@ const Employees = () => {
       </div>
 
       {loading ? (
-        <p className='text-center text-slate-500 py-12'>Loading employees...</p>
+        <div className="flex justify-center items-center py-16">
+          <div className="animate-spin size-8 border-2 border-indigo-600 border-t-transparent rounded-full" />
+        </div>
       ) : (
-        <div className='grid grid-cols-1 gap-4'>
-          {employees.length === 0 ? (
-            <div className='card p-6 text-center text-slate-600'>No employees found</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {filteredEmployees.length === 0 ? (
+            <div className="col-span-full text-center py-16 card">
+              <p className="text-slate-500">No employees found.</p>
+            </div>
           ) : (
-            employees.map((emp) => (
-              <div
-                key={emp._id}
-                className='card p-5 sm:p-6 flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center hover:bg-purple-50/50 hover:shadow-md transition-all duration-300 cursor-pointer'
-              >
-                <div className='flex-1'>
-                  <h2 className='font-semibold text-slate-900 text-lg'>
-                    {emp.firstName} {emp.lastName}
-                  </h2>
-                  <p className='text-sm text-slate-500'>
-                    {emp.position} • {emp.department}
-                  </p>
-                  <p className='text-sm text-slate-500 mt-2'>{emp.email}</p>
-                </div>
-                <div className='flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end'>
-                  <div className='text-right'>
-                    <p className='text-sm text-slate-500'>Status</p>
-                    <p className={`font-semibold ${emp.employmentStatus === 'ACTIVE' ? 'text-emerald-600' : 'text-amber-600'}`}>
-                      {emp.employmentStatus}
-                    </p>
-                  </div>
-                  <div className='flex gap-2'>
-                    <button
-                      onClick={() => handleEdit(emp)}
-                      className='p-2.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-blue-100 hover:text-blue-600 transition-colors duration-200 group'
-                      title='Edit employee'
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(emp)}
-                      className='p-2.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-red-100 hover:text-red-600 transition-colors duration-200'
-                      title='Delete employee'
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-              </div>
+            filteredEmployees.map((emp) => (
+              <EmployeeCard
+                key={emp.id || emp._id}
+                employee={emp}
+                onEdit={handleEdit}
+                onDelete={handleDeleteClick}
+              />
             ))
           )}
         </div>
       )}
-      
+
       {/* Delete Confirmation Modal */}
       {deleteModal.isOpen && (
         <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50'>
@@ -179,7 +160,7 @@ const Employees = () => {
       {/* Create employee modal */}
       {showCreateModal && (
         <div className='fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4' onClick={() => setShowCreateModal(false)}>
-          <div className='relative bg-white rounded-2xl w-full max-w-3xl animate-fade-in' onClick={(e) => e.stopPropagation()}>
+          <div className='relative bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto animate-fade-in' onClick={(e) => e.stopPropagation()}>
             <div className='flex items-center justify-between p-6 pb-0'>
               <div>
                 <h2 className='text-lg font-semibold text-slate-900'>Add New Employee</h2>
@@ -192,10 +173,10 @@ const Employees = () => {
             <div className='p-6'>
               {/* Add your employee form here */}
               <EmployeeForm
-              onSuccess={()=>{
-                setShowCreateModal(false);
-                fetchEmployees(); 
-              }} onCancel={()=> setShowCreateModal(false)}/>
+                onSuccess={() => {
+                  setShowCreateModal(false);
+                  fetchEmployees();
+                }} onCancel={() => setShowCreateModal(false)} />
             </div>
           </div>
         </div>
@@ -204,7 +185,7 @@ const Employees = () => {
       {/* edit employee modal */}
       {editEmployee && (
         <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm' onClick={() => setEditEmployee(null)}>
-          <div className='relative bg-white rounded-2xl w-full max-w-3xl animate-fade-in' onClick={(e) => e.stopPropagation()}>
+          <div className='relative bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto animate-fade-in' onClick={(e) => e.stopPropagation()}>
             <div className='flex items-center justify-between p-6 pb-0'>
               <div>
                 <h2 className='text-lg font-semibold text-slate-900'>Edit Employee</h2>
@@ -230,10 +211,10 @@ const Employees = () => {
 
 
     </div>
-      
-   
 
-    
+
+
+
   )
 }
 

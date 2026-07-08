@@ -1,15 +1,26 @@
 import { useState } from 'react'
-import { X } from 'lucide-react'
+import { Check, Loader2, X } from 'lucide-react'
 import React from 'react'
 import { format } from 'date-fns'
+import api from '../../api/axios'
+import toast from 'react-hot-toast'
 
 const LeaveHistory = ({leaves, isAdmin, onUpdate}) => {
-  const[Processing, setProcessing] = useState(null)
+  const[processing, setProcessing] = useState(null)
   
   const handleStatusUpdate = async (id, status) => {
     setProcessing(id)
+    try {
+      await api.patch(`/leave/${id}`, {status})
+      onUpdate();
+    } catch (error) {
+      toast.error(error?.response?.data?.error || error?.message)
+    }
+    finally{
+      setProcessing(null)
+    }
   }
-
+ 
   return (
     <div className='card overflow-hidden'>
           <div className='overflow-x-auto'>
@@ -40,8 +51,7 @@ const LeaveHistory = ({leaves, isAdmin, onUpdate}) => {
                       <tr key={leave._id || leave.id}>
                         {isAdmin && (
                            <td className= 'text-slate-900'>
-                            {leave.employee?.firstName}
-                            {leave.employee?.lastName}
+                            {leave.employee?.firstName} {leave.employee?.lastName}
                         </td>
 
                         )}
@@ -68,18 +78,18 @@ const LeaveHistory = ({leaves, isAdmin, onUpdate}) => {
                             {leave.status === "PENDING" && (
                               <div className='flex justify-center gap-2'>
                                 <button 
-                                disabled={!!processing}
-                                onClick={()=> handleStatusUpdate(leaveleave._id || leave.id, "APPPROVED")}
-                                className='p-1.5 rounded-md bg-emerald-50 text-emerald-100 transition-colors' >
-                                  {processing === (leave._id || leave.id ? <loader2 className= 'w-4 h-4 animate-spin'/> : <check className= 'w-4 h-4'/>)}
+                                disabled={processing === (leave._id || leave.id)}
+                                onClick={()=> handleStatusUpdate(leave._id || leave.id, "APPROVED")}
+                                className='p-1.5 rounded-md bg-emerald-600 text-emerald-100  hover:bg-emerald-300 hover:scale-105 transition-colors' >
+                                  {processing === (leave._id || leave.id) ? (<Loader2 className= 'w-4 h-4 animate-spin'/> ): (<Check className= 'w-4 h-4 '/>)}
                                 </button>
 
 
                                 <button
-                                 onClick={()=> handleStatusUpdate(leaveleave._id || leave.id, "REJECTED")}
-                                 disabled={!!processing}
-                                className='p-1.5 rounded-md bg-emerald-50 text-emerald-100 transition-colors' >
-                                  {processing === (leave._id || leave.id ? <loader2 className= 'w-4 h-4 animate-spin'/> : <X className= 'w-4 h-4'/>)}
+                                 onClick={()=> handleStatusUpdate(leave._id || leave.id, "REJECTED")}
+                                 disabled={processing === (leave._id || leave.id)}
+                                className='p-1.5 rounded-md bg-red-600 text-gray-100  hover:bg-red-300 hover:scale-105 transition-colors' >
+                                  {processing === (leave._id || leave.id) ? <Loader2 className= 'w-4 h-4 animate-spin'/> : (<X className= 'w-4 h-4'/>)}
                                 </button>
 
                               </div>  
