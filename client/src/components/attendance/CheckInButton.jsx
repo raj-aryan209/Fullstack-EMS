@@ -31,12 +31,12 @@ const CheckInButton = ({todayRecord, onAction}) => {
   return (
     <div className='fixed bottom-4 right-4 flex flex-col z-10'>
       <button onClick={handleAttendance} disabled={loading
-      } className={`w-full max-w-xs flex justify-between items-center gap-8 p-4 rounded-xl bg-linear-to-br text-white ${ischeckedIn ? "from-slate-700 to-slate-900" : "from-indigo-600 to-indigo-700"}`}>
-        {loading ? <Loader2Icon className="size-7 animate-spin"/> : ischeckedIn ? <LogOutIcon className='size-7'/> : <LogInIcon className='size-7'/>}
+      } className={`w-full max-w-xs flex justify-between items-center gap-8 p-4 rounded-xl bg-linear-to-br text-white ${isCheckedIn ? "from-slate-700 to-slate-900" : "from-indigo-600 to-indigo-700"}`}>
+        {loading ? <Loader2Icon className="size-7 animate-spin"/> : isCheckedIn ? <LogOutIcon className='size-7'/> : <LogInIcon className='size-7'/>}
         <div className='relative flex flex-col items-center text-center'>
 
-          <h2 className='text-lg font-medium mb-1'>{loading ? "Processing..." : ischeckedIn ? "Clock Out" : "Clock In"}</h2>
-          <p className='text-xs opacity-80'>{ischeckedIn ? "Click to end your shift" : "start your work day"}</p>
+          <h2 className='text-lg font-medium mb-1'>{loading ? "Processing..." : isCheckedIn ? "Clock Out" : "Clock In"}</h2>
+          <p className='text-xs opacity-80'>{isCheckedIn ? "Click to end your shift" : "start your work day"}</p>
         </div>
       </button>
 
