@@ -1,5 +1,6 @@
-import { Save } from 'lucide-react';
+import { Loader2, Save, User } from 'lucide-react';
 import React, { useState } from 'react'
+import api from '../api/axios';
 
 const ProfileForm = ({initialData, onSuccess}) => {
       const [loading, setLoading] = useState(false)
@@ -10,26 +11,39 @@ const ProfileForm = ({initialData, onSuccess}) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); 
+    setLoading(true)
+    setError("")
+    setMessage("")
+    const formData = new FormData(e.currentTarget)
+    try {
+      await api.post("/profile",formData)
+      setMessage("Profile Updated Succesfully.")
+      onSuccess?.()
+    } catch (error) {
+      setError(error.response?.data?.error || error.message)
+    }finally{
+      setLoading(false)
+    }
 
   }
   return (
     <form onSubmit={handleSubmit} className='card p-5 sm:p-6 mb-6'>
         <h2 className='text-base font-medium text-slate-900 mb-6 pb-4 border-b border-slate-100 flex items-center gap-2'>
-          <user className='w-5 h-5 text-slate-400' />
+          <User className='w-5 h-5 text-slate-400' />
           Public Profile
         </h2>
         {error && (
           <div className='bg-rose-50 text-rose-700 rounded-xl text-sm border border-rose-200 mb-6 flex items-start gap-3'>
-            <div className='w-1.5 h-1.5 rouded-full bg-rose-500 mt-1.5 shrink-0'/>
+            <div className='w-1.5 h-1.5 rounded-full bg-rose-500 mt-1.5 shrink-0'/>
             {error}
 
           </div>
         )}
 
          {message && (
-          <div className='bg-emerald text-emerald-700 p-4 rounded-xl text-sm border border-emerald-200 mb-6 flex' items-start gap-3>
-            <div className='w-1.5 h-1.5 rouded-full bg-emerald-500 mt-1.5 shrink-0'/>
-            {error}
+          <div className='bg-emerald-50 text-emerald-700 p-4 rounded-xl text-sm border border-emerald-200 mb-6 flex items-start gap-3'>
+            <div className='w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0'/>
+            {message}
 
           </div>
         )}
@@ -45,7 +59,7 @@ const ProfileForm = ({initialData, onSuccess}) => {
             </div>
             <div className='sm:col-span-2'>
               <label className='block text-sm font-medium text-slate-700 mb-2'>Position</label>
-              <input disabled value={initialData.Position}className='bg-slate-50 text-slate-400 cursor-not-allowed' />
+              <input disabled value={initialData.position}className='bg-slate-50 text-slate-400 cursor-not-allowed' />
             </div>
 
           </div>
